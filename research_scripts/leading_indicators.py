@@ -104,7 +104,7 @@ ax2.set_ylabel('GDP Growth')
 ax.set_title('Housing Permits vs GDP Growth')
 plt.grid(True)
 fig.tight_layout()
-plt.savefig("housing_permits_growth", dpi=150)
+plt.savefig("graphs/housing_permits_growth", dpi=150)
 
 
 fig = plt.figure(figsize=(8, 5), dpi=150)
@@ -118,7 +118,7 @@ ax2.set_ylabel('GDP Growth')
 ax.set_title('Housing Permits vs GDP Growth')
 plt.grid(True)
 fig.tight_layout()
-plt.savefig("housing_permits", dpi=150)
+plt.savefig("graphs/housing_permits", dpi=150)
 
 
 
@@ -159,4 +159,44 @@ ax2.set_ylabel('GDP Growth')
 ax.set_title('Manufacturing PMI vs GDP Growth')
 plt.grid(True)
 fig.tight_layout()
-plt.savefig("manufacturing_pmi", dpi=150)
+plt.savefig("graphs/manufacturing_pmi", dpi=150)
+
+## Consumer Index Indicator INDICATOR
+
+# read consumer index
+consumer_index = pd.read_csv('data/consumer_index.csv')
+consumer_index['Date'] = pd.to_datetime(consumer_index['Year'].astype(str) + '-' + consumer_index['Month'].astype(str),
+                                        format='%Y-%m')
+consumer_index = consumer_index[['Date', 'Index']]
+consumer_index['Month'] = pd.PeriodIndex(consumer_index.Date, freq='M')
+consumer_index = consumer_index.sort_values(by='Date').reset_index(drop=True)
+
+# analysis df
+analysis_df = pd.DataFrame(data=pd.date_range(consumer_index.Date.min(), consumer_index.Date.max(), freq='M'),
+                           columns=['Date'])
+analysis_df['Month'] = pd.PeriodIndex(analysis_df.Date, freq='M')
+
+# join gdp growth
+analysis_df = analysis_df.set_index('Month').join(yearly_gdp_growth.set_index('Month')['Yearly_GDP_Growth'])
+
+# join consumer index
+analysis_df = analysis_df.join(consumer_index.set_index('Month')['Index'])
+
+plot_df = analysis_df[['Yearly_GDP_Growth', 'Index', 'Date']]
+
+plot_df = plot_df.reset_index(drop=True).set_index('Date')
+
+corr = plot_df.corr()
+
+fig = plt.figure(figsize=(8, 5), dpi=150)
+ax = fig.gca()
+sns.lineplot(data=plot_df.Index, color="g", label='Consumer Index')
+ax2 = plt.twinx()
+sns.lineplot(data=plot_df.Yearly_GDP_Growth, color="b", ax=ax2, label='GDP', marker='o')
+plt.legend(loc='upper center')
+ax.set_ylabel('University of Michigan Consumer Index')
+ax2.set_ylabel('GDP Growth')
+ax.set_title('Consumer Index vs GDP Growth')
+plt.grid(True)
+fig.tight_layout()
+plt.savefig("graphs/consumer_index", dpi=150)
