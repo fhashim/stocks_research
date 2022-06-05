@@ -1,0 +1,5 @@
+# PyCharm
+.idea/
+
+# Apple/iOS files
+*.DS_Store
