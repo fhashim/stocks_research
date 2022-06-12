@@ -3,3 +3,6 @@
 
 # Apple/iOS files
 *.DS_Store
+
+#Data Extraction
+data/get_data.py
